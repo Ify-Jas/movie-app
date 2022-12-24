@@ -1,26 +1,25 @@
-var searchInput = document.querySelector('.search');
-var cardWrapper = document.querySelector('main');
+var searchInput = $('.search');
+var cardWrapper = $('main');
 
 
 function noMatch(){
-    cardWrapper.innerHTML = '<p class="no-search">No results found.</p>';
-
+    cardWrapper.html('<p class="no-search">No results found.</p>');
 
 }
 
 function displayMatches(matches) {
-   cardWrapper.innerHTML = '';
+   cardWrapper.html('');
 
    if(!matches.length) {
     noMatch();
    }
 
     for (var matchObj of matches) {
-        cardWrapper.insertAdjacentHTML('beforeend', `
-        <div class="movie-card" style='background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${matchObj.movie_image});'>
-          <h3>${matchObj.title}</h3>
-          <p>${matchObj.description}</p>
-          <a href='${matchObj.imdb_link}' target='_blank'>View more info here</a>
+        cardWrapper.append(`
+        <div class="movie-card" style='background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${matchObj.Poster});'>
+          <h3>${matchObj.Title}</h3>
+          <p>Release Year${matchObj.Year}</p>
+          <a href='https://www.imdb.com/title/${matchObj.imdbID}' target='_blank'>View more info here</a>
         </div> 
         
         `);
@@ -34,41 +33,28 @@ function displayMatches(matches) {
 
 function fetchMovies(event) {
     var keyCode = event.keyCode;
-    var searchText = searchInput.value.toLowerCase().trim();
+    var searchText = searchInput.val().trim();
     //trim to remove white spaces, toLowerCase to convert and match search to same type, includes to allow a partial search to march jurassic search to return Jurassica park
 
     if (keyCode === 13 && searchText) {
-        var matches = [];
-        for (var movieObj of movieData) {
-            if (movieObj.title.toLowerCase().includes(searchText)) {
-                matches.push(movieObj);
-
-            }
-
-        }
-        searchInput.value = '';
-        displayMatches(matches);
-
-        fetch('http://www.omdbapi.com/?apikey=c953ed91&t=jurassic park').then(function(responseObj){
-            var dataPromise = responseObj.json();
-
-            dataPromise.then(function(data){
-                console.log(data);
-
-            })
-
-            
-        });
         
 
+        $.get(`http://www.omdbapi.com/?apikey=c953ed91&s=${searchText}`)
+          .then(function(data) {
+           displayMatches(data.Search);
+           searchInput.val('');
+
+
+         });         
+    
+      
 
     }
 
 }
 
 function init() {
-    searchInput.addEventListener('keydown', fetchMovies);
-
+    searchInput.keydown(fetchMovies);
 
 }
 
